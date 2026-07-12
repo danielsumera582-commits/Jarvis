@@ -97,20 +97,41 @@ setInterval(updateClock,1000);
 
 updateClock();
 
-function activate(){
+function function activate() {
 
-document.getElementById("status").innerHTML="LISTENING...";
+  document.getElementById("status").innerHTML = "LISTENING...";
 
-let msg=new SpeechSynthesisUtterance(
-"Hello Sir. Jarvis online."
-);
+  const SpeechRecognition =
+    window.SpeechRecognition || window.webkitSpeechRecognition;
 
-speechSynthesis.speak(msg);
+  if (!SpeechRecognition) {
+    document.getElementById("status").innerHTML =
+      "Speech recognition not supported";
+    return;
+  }
 
-setTimeout(function(){
-document.getElementById("status").innerHTML="ONLINE";
-},4000);
+  const recognition = new SpeechRecognition();
 
+  recognition.lang = "en-US";
+  recognition.interimResults = false;
+
+  recognition.start();
+
+  recognition.onresult = function(event) {
+    const text = event.results[0][0].transcript;
+
+    document.getElementById("status").innerHTML =
+      "You said: " + text;
+
+    speechSynthesis.speak(
+      new SpeechSynthesisUtterance("You said " + text)
+    );
+  };
+
+  recognition.onerror = function(event) {
+    document.getElementById("status").innerHTML =
+      "Microphone error: " + event.error;
+  };
 }
 
 </script>
